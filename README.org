@@ -1,0 +1,21 @@
+* A simple example module for ENEXA
+** Build
+Build the [[https://github.com/EnexaProject/enexa-utils][enexa-utils]] Docker image first, then:
+#+begin_src shell :results output silent
+make build
+#+end_src
+That would build a Docker image for this module.
+
+** Test
+Setup the test environment from [[https://github.com/EnexaProject/enexa-utils][enexa-utils]] first, then:
+#+begin_src shell :results output silent
+make test
+#+end_src
+That would run your module in a dummy environment.
+The result files would be stored in ~test-shared-dir~.
+The RDF data would be inserted to a locally running SPARQL store.
+
+** Developer information
+- ~example~ :: A main application script, possibly unaware of ENEXA.
+- ~module~ :: A main module script to translate the input and output parameters between ENEXA and the application.
+- ~Dockerfile~ :: A Dockerfile for the Docker image of this module.
