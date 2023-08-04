@@ -1,0 +1,9 @@
+CONSTRUCT {
+  ?moduleInstance <http://w3id.org/dice-research/enexa/module/transform/parameter/input> ?input .
+  ?input <http://w3id.org/dice-research/enexa/ontology#location> ?fileLocation .
+  ?moduleInstance <http://w3id.org/dice-research/enexa/module/transform/parameter/outputMediaType> ?outputMediaType .
+} WHERE {
+  ?moduleInstance <http://w3id.org/dice-research/enexa/module/transform/parameter/input> ?input .
+  ?input <http://w3id.org/dice-research/enexa/ontology#location> ?fileLocation .
+  ?moduleInstance <http://w3id.org/dice-research/enexa/module/transform/parameter/outputMediaType> ?outputMediaType .
+}
