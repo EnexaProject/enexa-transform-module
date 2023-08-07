@@ -1,0 +1,53 @@
+@prefix dcat:   <http://www.w3.org/ns/dcat#> .
+@prefix enexa:  <http://w3id.org/dice-research/enexa/ontology#> .
+@prefix hobbit: <http://w3id.org/hobbit/vocab#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sd:     <http://www.w3.org/ns/sparql-service-description#> .
+@prefix xsd:    <http://www.w3.org/2000/10/XMLSchema#> .
+
+<http://example.org/module/123> a enexa:ModuleInstance, prov:Activity ; 
+	enexa:experiment <http://example.org/experiment1> ; 
+	enexa:instanceOf <http://w3id.org/dice-research/enexa/module/transform/0.0.1> ;
+	enexa:dnsName "diceTransformer1" ; 
+	enexa:containerId "the ID of the container" ; 
+	prov:startedAtTime "2023-04-01T12:35:58Z"^^xsd:dateTime ; 
+	<http://w3id.org/dice-research/enexa/module/transform/parameter/input> <http://example.org/experiment1/data/kg/dump.ttl> ;
+	<http://w3id.org/dice-research/enexa/module/transform/parameter/input> <http://example.org/experiment1/data/kg/dump2.json> ;
+	<http://w3id.org/dice-research/enexa/module/transform/parameter/outputMediaType> <https://www.iana.org/assignments/media-types/application/n-triples> .
+
+<http://example.org/experiment1> a enexa:Experiment ; 
+	enexa:sharedDirectory "enexa-dir://application1/experiment1" ;
+	enexa:metaDataEndpoint <http://enexa-endpoint/sparql> ;
+	enexa:metaDataGraph <http://example.org/experiment1/graph> .
+	
+<http://example.org/experiment1/modules/fileDownload_1> a prov:Activity ;
+	enexa:experiment <http://example.org/experiment1> ; 
+	prov:startedAtTime "2023-04-01T12:05:21Z"^^xsd:dateTime ; 
+	prov:endedAtTime "2023-04-01T12:31:29Z"^^xsd:dateTime ; 
+	prov:used <http://some-server.com/data-directory/dump.ttl> .
+
+<http://example.org/experiment1/data/kg/dump.ttl> a prov:Entity ;
+	enexa:experiment <http://example.org/experiment1> ; 
+	enexa:location "enexa-dir://application1/experiment1/kg/dump.ttl" ;
+	prov:wasGeneratedBy <http://example.org/experiment1/modules/fileDownload_1> ;
+	dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> ;
+	dcat:byteSize "5120"^^xsd:nonNegativeInteger .
+
+<http://example.org/experiment1/data/kg/dump2.json> a prov:Entity ;
+	enexa:experiment <http://example.org/experiment1> ; 
+	enexa:location "enexa-dir://application1/experiment1/kg/dump2.json" ;
+	dcat:mediaType <https://www.iana.org/assignments/media-types/application/ld+json> .
+	
+<http://example.org/module/456> a enexa:ModuleInstance, prov:Activity ; 
+	enexa:experiment <http://example.org/experiment1> ; 
+	enexa:instanceOf <http://w3id.org/dice-research/enexa/module/transform/0.0.1> ;
+	enexa:dnsName "diceTransformer2" ; 
+	enexa:containerId "the ID of the container" ; 
+	prov:startedAtTime "2023-04-01T12:35:58Z"^^xsd:dateTime ; 
+	<http://w3id.org/dice-research/enexa/module/transform/parameter/input> <http://example.org/experiment1/data/kg/dump3.ttl> ;
+	<http://w3id.org/dice-research/enexa/module/transform/parameter/input> <http://example.org/experiment1/data/kg/dump4.json> ;
+	<http://w3id.org/dice-research/enexa/module/transform/parameter/outputMediaType> <https://www.iana.org/assignments/media-types/application/n-triples> .
+

@@ -60,7 +60,7 @@ public class EnexaTransformator {
         Resource experimentResource = ResourceFactory.createResource(experimentIri);
 
         // 1. get parameters from SPARQL endpoint
-        Model parameterModel = queryParameterModel(endpoint, metaGraph, moduleInsResource);
+        Model parameterModel = queryParameterModel(endpoint, metaGraph, moduleInstance);
         List<Resource> sourceFiles = RdfHelper.getObjectResources(parameterModel, moduleInsResource,
                 TransformVocab.input);
         if (sourceFiles.size() == 0) {
@@ -186,22 +186,24 @@ public class EnexaTransformator {
      * 
      * @param metaDataEndpoint the SPARQL endpoint hosting the meta data graph
      * @param metaDataGraph    the graph containing the meta data
-     * @param moduleInstance   the resource representing this instance of the ENEXA
-     *                         module
+     * @param moduleInstance   the IRI of the ENEXA module instance
      * @return an RDF model containing the queried sub graph
      * @throws IllegalStateException in case an error occurs while querying the
      *                               model
      */
-    protected static Model queryParameterModel(String metaDataEndpoint, String metaDataGraph, Resource moduleInstance) {
+    protected static Model queryParameterModel(String metaDataEndpoint, String metaDataGraph, String moduleInstance) {
+        ParameterizedSparqlString query = null;
         try (QueryExecutionFactory queryExecFactory = new QueryExecutionFactoryHttp(metaDataEndpoint, metaDataGraph)) {
-            ParameterizedSparqlString query = SparqlQueryUtils.loadParameterizedQuery(null, "getParameters.query",
-                    StandardCharsets.UTF_8);
-            query.setParam("instanceIri", moduleInstance);
+             query = SparqlQueryUtils.loadParameterizedQuery(
+                    EnexaTransformator.class.getClassLoader(), "getParameters.query", StandardCharsets.UTF_8);
+            query.setIri("?moduleInstance", moduleInstance);
+            query.setIri("?graph", metaDataGraph);
             QueryExecution qe = queryExecFactory.createQueryExecution(query.asQuery());
             return qe.execConstruct();
         } catch (Exception e) {
-            LOGGER.error("Error while requesting parameter values.", e);
-            throw new IllegalStateException("Error while requesting parameter values.", e);
+            String msg = "Error while requesting parameter values. query: " + ((query == null) ? "no query generated" : query.toString());
+            LOGGER.error(msg, e);
+            throw new IllegalStateException(msg, e);
         }
     }
 

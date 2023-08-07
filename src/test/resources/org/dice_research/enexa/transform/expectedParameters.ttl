@@ -1,0 +1,18 @@
+@prefix dcat:   <http://www.w3.org/ns/dcat#> .
+@prefix enexa:  <http://w3id.org/dice-research/enexa/ontology#> .
+@prefix hobbit: <http://w3id.org/hobbit/vocab#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sd:     <http://www.w3.org/ns/sparql-service-description#> .
+@prefix xsd:    <http://www.w3.org/2000/10/XMLSchema#> .
+
+<http://example.org/module/123> <http://w3id.org/dice-research/enexa/module/transform/parameter/input> <http://example.org/experiment1/data/kg/dump.ttl> ;
+	<http://w3id.org/dice-research/enexa/module/transform/parameter/input> <http://example.org/experiment1/data/kg/dump2.json> ;
+	<http://w3id.org/dice-research/enexa/module/transform/parameter/outputMediaType> <https://www.iana.org/assignments/media-types/application/n-triples> .
+
+<http://example.org/experiment1/data/kg/dump.ttl> enexa:location "enexa-dir://application1/experiment1/kg/dump.ttl" .
+
+<http://example.org/experiment1/data/kg/dump2.json> enexa:location "enexa-dir://application1/experiment1/kg/dump2.json" .
+
