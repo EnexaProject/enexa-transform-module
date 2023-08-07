@@ -61,6 +61,7 @@ public class EnexaTransformator {
 
         // 1. get parameters from SPARQL endpoint
         Model parameterModel = queryParameterModel(endpoint, metaGraph, moduleInstance);
+        LOGGER.debug("Parameter Model: {}", parameterModel);
         List<Resource> sourceFiles = RdfHelper.getObjectResources(parameterModel, moduleInsResource,
                 TransformVocab.input);
         if (sourceFiles.size() == 0) {
@@ -193,15 +194,18 @@ public class EnexaTransformator {
      */
     protected static Model queryParameterModel(String metaDataEndpoint, String metaDataGraph, String moduleInstance) {
         ParameterizedSparqlString query = null;
-        try (QueryExecutionFactory queryExecFactory = new QueryExecutionFactoryHttp(metaDataEndpoint, metaDataGraph)) {
-             query = SparqlQueryUtils.loadParameterizedQuery(
-                    EnexaTransformator.class.getClassLoader(), "getParameters.query", StandardCharsets.UTF_8);
+        try (QueryExecutionFactory queryExecFactory = new QueryExecutionFactoryHttp(metaDataEndpoint)) {
+            query = SparqlQueryUtils.loadParameterizedQuery(EnexaTransformator.class.getClassLoader(),
+                    "org/dice_research/enexa/transform/getParameters.query", StandardCharsets.UTF_8);
             query.setIri("?moduleInstance", moduleInstance);
             query.setIri("?graph", metaDataGraph);
-            QueryExecution qe = queryExecFactory.createQueryExecution(query.asQuery());
-            return qe.execConstruct();
+            LOGGER.debug("SPARQL query for getting paramters: {}" + query.toString());
+            try (QueryExecution qe = queryExecFactory.createQueryExecution(query.asQuery());) {
+                return qe.execConstruct();
+            }
         } catch (Exception e) {
-            String msg = "Error while requesting parameter values. query: " + ((query == null) ? "no query generated" : query.toString());
+            String msg = "Error while requesting parameter values. query: "
+                    + ((query == null) ? "no query generated" : query.toString());
             LOGGER.error(msg, e);
             throw new IllegalStateException(msg, e);
         }
@@ -234,7 +238,11 @@ public class EnexaTransformator {
                 if (response.getCode() >= 200 && response.getCode() < 300) {
                     try (InputStream is = response.getEntity().getContent()) {
                         model = ModelFactory.createDefaultModel();
-                        RDFDataMgr.read(model, is, "", Lang.JSONLD);
+                        if (is.available() > 0) {
+                            RDFDataMgr.read(model, is, "", Lang.JSONLD);
+                        } else {
+                            LOGGER.warn("Answer of ENEXA service is empty. Maybe this is the test environment?");
+                        }
                     }
                 } else {
                     LOGGER.error("Wrong response status: " + new StatusLine(response));
@@ -243,7 +251,7 @@ public class EnexaTransformator {
             });
             return result.getContent();
         } catch (Exception e) {
-            LOGGER.error("Caught an exception while running request. Returning null.");
+            LOGGER.error("Caught an exception while running request. Returning null.", e);
         }
         return null;
     }

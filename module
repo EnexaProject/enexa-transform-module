@@ -5,20 +5,20 @@ set -eu
 if [ "$TEST_RUN" = true ]
 then  
   # things which ENEXA is supposed to do
-  mkdir -p $ENEXA_WRITEABLE_DIRECTORY
-  echo "INSERT DATA { 
+  mkdir -p $ENEXA_MODULE_INSTANCE_DIRECTORY
+  echo "INSERT DATA { GRAPH <$ENEXA_META_DATA_GRAPH> {
     <$ENEXA_MODULE_INSTANCE_IRI> <http://w3id.org/dice-research/enexa/module/transform/parameter/input> <http://example.org/file/data1.ttl> .
     <$ENEXA_MODULE_INSTANCE_IRI> <http://w3id.org/dice-research/enexa/module/transform/parameter/input> <http://example.org/file/data2.ttl> .
     <$ENEXA_MODULE_INSTANCE_IRI> <http://w3id.org/dice-research/enexa/module/transform/parameter/outputMediaType> <https://www.iana.org/assignments/media-types/application/n-triples> .
-    <http://example.org/file/data1.ttl> <http://w3id.org/dice-research/enexa/ontology#location> "enexa-dir://data1.ttl" .
+    <http://example.org/file/data1.ttl> <http://w3id.org/dice-research/enexa/ontology#location> \"enexa-dir://data1.ttl\" .
     <http://example.org/file/data1.ttl> <http://www.w3.org/ns/dcat#mediaType> <https://www.iana.org/assignments/media-types/text/turtle> .
-    <http://example.org/file/data2.ttl> <http://w3id.org/dice-research/enexa/ontology#location> "enexa-dir://data2.ttl" .
+    <http://example.org/file/data2.ttl> <http://w3id.org/dice-research/enexa/ontology#location> \"enexa-dir://data2.ttl\" .
     <http://example.org/file/data2.ttl> <http://www.w3.org/ns/dcat#mediaType> <https://www.iana.org/assignments/media-types/text/turtle> .
-    }" \
+    }}" \
     | sparql-update "$ENEXA_META_DATA_ENDPOINT"
   # move two files that we can concatenate
   
 fi
 
 # Start module execution
-java -cp enexa-transform.jar:lib org.dice_research.enexa.transform.EnexaTransformator
+java -cp enexa-transform.jar:lib/* org.dice_research.enexa.transform.EnexaTransformator

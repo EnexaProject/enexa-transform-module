@@ -9,9 +9,12 @@ COPY --from=enexa-utils:1 / /.
 # Add Maven dependencies (not shaded into the artifact; Docker-cached)
 ADD target/lib           /app/lib
 
+# Add module script
+ADD module /app/module
+
 # Add the service itself
 ARG JAR_FILE
 ADD target/${JAR_FILE} /app/enexa-transform.jar
 
 # Run
-CMD module
+CMD ./module
