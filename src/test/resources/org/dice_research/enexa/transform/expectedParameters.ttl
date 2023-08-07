@@ -12,7 +12,9 @@
 	<http://w3id.org/dice-research/enexa/module/transform/parameter/input> <http://example.org/experiment1/data/kg/dump2.json> ;
 	<http://w3id.org/dice-research/enexa/module/transform/parameter/outputMediaType> <https://www.iana.org/assignments/media-types/application/n-triples> .
 
-<http://example.org/experiment1/data/kg/dump.ttl> enexa:location "enexa-dir://application1/experiment1/kg/dump.ttl" .
+<http://example.org/experiment1/data/kg/dump.ttl> enexa:location "enexa-dir://application1/experiment1/kg/dump.ttl" ;
+	dcat:mediaType <https://www.iana.org/assignments/media-types/text/turtle> .
 
-<http://example.org/experiment1/data/kg/dump2.json> enexa:location "enexa-dir://application1/experiment1/kg/dump2.json" .
+<http://example.org/experiment1/data/kg/dump2.json> enexa:location "enexa-dir://application1/experiment1/kg/dump2.json" ;
+	dcat:mediaType <https://www.iana.org/assignments/media-types/application/ld+json> .
 

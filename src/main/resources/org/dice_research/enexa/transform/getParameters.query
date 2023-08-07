@@ -1,11 +1,13 @@
 CONSTRUCT {
   ?moduleInstance <http://w3id.org/dice-research/enexa/module/transform/parameter/input> ?input .
   ?input <http://w3id.org/dice-research/enexa/ontology#location> ?fileLocation .
+  ?input <http://www.w3.org/ns/dcat#mediaType> ?mediaType .
   ?moduleInstance <http://w3id.org/dice-research/enexa/module/transform/parameter/outputMediaType> ?outputMediaType .
 } WHERE {
   GRAPH ?graph {
     ?moduleInstance <http://w3id.org/dice-research/enexa/module/transform/parameter/input> ?input .
-    OPTIONAL { ?input <http://w3id.org/dice-research/enexa/ontology#location> ?fileLocation . }
+    ?input <http://w3id.org/dice-research/enexa/ontology#location> ?fileLocation .
+    OPTIONAL { ?input <http://www.w3.org/ns/dcat#mediaType> ?mediaType . }
     ?moduleInstance <http://w3id.org/dice-research/enexa/module/transform/parameter/outputMediaType> ?outputMediaType .
   }
 }
