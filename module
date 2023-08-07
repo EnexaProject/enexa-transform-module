@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+
+# If this is a test run
+if [ "$TEST_RUN" = true ]
+then  
+  # things which ENEXA is supposed to do
+  mkdir -p $ENEXA_WRITEABLE_DIRECTORY
+  echo "INSERT DATA { <$ENEXA_MODULE_INSTANCE_IRI> <http://example.org/input-parameter-1> 3 }" \
+    | sparql-update "$ENEXA_META_DATA_ENDPOINT"
+fi
+
+# Start module execution
+java -cp enexa-transform.jar:lib org.dice_research.enexa.transform.EnexaTransformator
