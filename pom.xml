@@ -118,22 +118,22 @@
                 <groupId>com.spotify</groupId>
                 <artifactId>dockerfile-maven-plugin</artifactId>
                 <version>1.4.13</version>
-                <executions>
+                <!--<executions>
                     <execution>
                         <id>default</id>
                         <goals>
                             <goal>build</goal>
-                            <!--<goal>push</goal>-->
+                            <goal>push</goal>
                         </goals>
                     </execution>
-                </executions>
+                </executions>-->
                 <configuration>
-                    <repository>
-                        library/dice-group/enexa-transform</repository>
+                    <repository>docker.io/library/dice-group/enexa-transform</repository>
                     <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
                     </buildArgs>
+                    <pullNewerImage>false</pullNewerImage>
                 </configuration>
             </plugin>
             <!-- Plugin for copying dependencies -->
