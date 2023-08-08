@@ -5,10 +5,11 @@
 
     <groupId>org.dice-research</groupId>
     <artifactId>enexa.transform</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
 
     <!-- PROPERTIES -->
     <properties>
+        <docker.image>hub.cs.upb.de/enexa/enexa-transform-module</docker.image>
         <java.version>17</java.version>
         <slf4j.version>2.0.7</slf4j.version>
         <junit.version>4.13.2</junit.version>
@@ -128,7 +129,7 @@
                     </execution>
                 </executions>-->
                 <configuration>
-                    <repository>docker.io/library/dice-group/enexa-transform</repository>
+                    <repository>${docker.image}</repository>
                     <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>

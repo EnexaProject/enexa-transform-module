@@ -1,4 +1,6 @@
-TAG=docker.io/library/dice-group/enexa-transform:0.0.1-SNAPSHOT
+IMAGE=$(shell mvn help:evaluate -Dexpression=docker.image -q -DforceStdout)
+VERSION=$(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+TAG=$(IMAGE):$(VERSION)
 TEST_DIR=test-shared-dir
 
 build:
@@ -21,3 +23,13 @@ test:
 	-e TEST_RUN=true \
 	--network enexa-utils_default \
 	$(TAG)
+
+push:
+	docker push $(TAG)
+
+push-latest:
+	docker tag $(TAG) $(IMAGE):latest
+	docker push $(IMAGE):latest
+
+update-ttl-file:
+	sed 's/$$(VERSION)/$(VERSION)/g' module.ttl.template | sed 's=$$(TAG)=$(TAG)=g' >> module.ttl
