@@ -101,21 +101,18 @@ public class EnexaTransformator {
         Model metadata = ModelFactory.createDefaultModel();
         Resource fileResource = metadata.createResource();
         metadata.add(fileResource, RDF.type, metadata.createResource("http://www.w3.org/ns/prov#Entity"));
-        metadata.add(fileResource, metadata.createProperty("http://w3id.org/dice-research/enexa/ontology#experiment"),
-                experimentResource);
-        metadata.add(fileResource, metadata.createProperty("http://w3id.org/dice-research/enexa/ontology#location"),
-                enexaFileLocation);
-        metadata.add(fileResource, metadata.createProperty("http://w3id.org/dice-research/enexa/ontology#experiment"),
-                experimentResource);
+        metadata.add(fileResource, ENEXA.experiment, experimentResource);
+        metadata.add(fileResource, ENEXA.location, enexaFileLocation);
         metadata.add(fileResource, metadata.createProperty("http://www.w3.org/ns/prov#wasGeneratedBy"),
                 moduleInsResource);
         metadata.add(fileResource, DCAT.mediaType, targetMediaResource);
         try {
-            metadata.addLiteral(fileResource, metadata.createProperty("http://www.w3.org/ns/dcat#byteSize"),
-                    outputFile.length());
+            metadata.addLiteral(fileResource, DCAT.byteSize, outputFile.length());
         } catch (SecurityException e) {
             LOGGER.warn("Couldn't determine the size of " + outputFile.toString(), e);
         }
+        // Add the direct connection that the generated file is the output of this module instance
+        metadata.add(moduleInsResource, TransformVocab.output, fileResource);
 
         if (sendRequest(enexaServiceUrl, metadata) != null) {
             LOGGER.info("This module seems to have been successful.");

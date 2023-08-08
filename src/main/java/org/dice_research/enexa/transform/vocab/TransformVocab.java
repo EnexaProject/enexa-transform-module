@@ -29,5 +29,6 @@ public class TransformVocab {
 
     // Properties sorted alphabetically
     public static final Property input = property("parameter/input");
+    public static final Property output = property("result/output");
     public static final Property outputMediaType = property("parameter/outputMediaType");
 }
