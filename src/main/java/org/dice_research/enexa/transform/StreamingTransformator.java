@@ -216,6 +216,28 @@ public class StreamingTransformator implements AutoCloseable {
                 throw new IllegalArgumentException("The given output format is null.");
             }
 
+            File outputFile = createOutputFile();
+
+            // Create parent directoy if it doesn't exist
+            if (outputDirectory != null && !outputDirectory.exists() && !outputDirectory.mkdirs()) {
+                String msg = "Couldn't create the non-existing parent directory " + outputDirectory.toString()
+                        + " for the output file. ";
+                LOGGER.error(msg);
+                throw new IOException(msg);
+            }
+
+            OutputStream fout = null;
+            try {
+                fout = createOutputStream(outputFile);
+                return new StreamingTransformator(createRDFStream(fout), fout, outputFile);
+            } catch (Throwable e) {
+                // If the stream is open, try to close it
+                IOUtils.closeQuietly(fout);
+                throw e;
+            }
+        }
+
+        protected File createOutputFile() {
             // Create File object for the output file
             StringBuilder outputFileBuilder = new StringBuilder();
             // Add parent path if it exists
@@ -245,18 +267,10 @@ public class StreamingTransformator implements AutoCloseable {
             default:
                 break;
             }
-            File outputFile = new File(outputFileBuilder.toString());
+            return new File(outputFileBuilder.toString());
+        }
 
-            // Create parent directoy if it doesn't exist
-            if (outputDirectory != null && !outputDirectory.exists()) {
-                if (!outputDirectory.mkdirs()) {
-                    String msg = "Couldn't create the non-existing parent directory " + outputDirectory.toString()
-                            + " for the output file. ";
-                    LOGGER.error(msg);
-                    throw new IOException(msg);
-                }
-            }
-
+        protected OutputStream createOutputStream(File outputFile) throws IOException {
             OutputStream fout = null;
             try {
                 fout = new BufferedOutputStream(new FileOutputStream(outputFile));
@@ -275,15 +289,19 @@ public class StreamingTransformator implements AutoCloseable {
                     break;
                 }
 
-                // Create RDF stream
-                StreamRDF outStream = StreamRDFWriter.getWriterStream(fout, outputFormat);
-                outStream.start();
-                return new StreamingTransformator(outStream, fout, outputFile);
+                return fout;
             } catch (Throwable e) {
                 // If the stream is open, try to close it
                 IOUtils.closeQuietly(fout);
                 throw e;
             }
+        }
+
+        protected StreamRDF createRDFStream(OutputStream fout) {
+            // Create RDF stream
+            StreamRDF outStream = StreamRDFWriter.getWriterStream(fout, outputFormat);
+            outStream.start();
+            return outStream;
         }
 
         /**

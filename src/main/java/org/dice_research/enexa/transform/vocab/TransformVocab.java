@@ -8,6 +8,11 @@ public class TransformVocab {
 
     protected static final String uri = "http://w3id.org/dice-research/enexa/module/transform/";
 
+    // Properties sorted alphabetically
+    public static final Property input = property("parameter/input");
+    public static final Property output = property("result/output");
+    public static final Property outputMediaType = property("parameter/outputMediaType");
+
     /**
      * returns the URI for this schema
      *
@@ -26,9 +31,4 @@ public class TransformVocab {
     protected static final Property property(String local) {
         return ResourceFactory.createProperty(uri, local);
     }
-
-    // Properties sorted alphabetically
-    public static final Property input = property("parameter/input");
-    public static final Property output = property("result/output");
-    public static final Property outputMediaType = property("parameter/outputMediaType");
 }
