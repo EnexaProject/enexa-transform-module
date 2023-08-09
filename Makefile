@@ -32,4 +32,4 @@ push-latest:
 	docker push $(IMAGE):latest
 
 update-ttl-file:
-	sed 's/$$(VERSION)/$(VERSION)/g' module.ttl.template | sed 's=$$(TAG)=$(TAG)=g' >> module.ttl
+	sed 's/$$(VERSION)/$(VERSION)/g' module.ttl.template | sed 's=$$(TAG)=$(TAG)=g' > module.ttl
