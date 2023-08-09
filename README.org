@@ -1,4 +1,14 @@
-* A simple example module for ENEXA
+* A simple RDF transformation module for ENEXA
+** Goal
+The module takes one or more RDF files as input and creates a single RDF file as output. The input files:
+- need to have an RDF serialization that is supported by Apache Jena
+- can be compressed with GZIP or BZip2
+- should have their mime type in the meta data graph; otherwise the transformator will guess the RDF serialization based on the file name
+
+The output file:
+- will contain all triples of the input RDF datasets (no deduplication is done!)
+- will use the given RDF serialization (Note: only streanmable formats are supported, i.e., Turtle, N-Triples, N-Quads and TriG)
+
 ** Build
 Build the [[https://github.com/EnexaProject/enexa-utils][enexa-utils]] Docker image first, then:
 #+begin_src shell :results output silent
@@ -15,7 +25,16 @@ That would run your module in a dummy environment.
 The result files would be stored in ~test-shared-dir~.
 The RDF data would be inserted to a locally running SPARQL store.
 
+** Publish new version
+
+When publishing a new version, the ~pom.xml~ should be updated before running the following command_
+#+begin_src shell :results output silent
+make build push push-latest update-ttl-file
+#+end_src
+This will build the Docker image with the new version tag and the ~latest~ tag. Both will be pushed to the image repository. The last part of the command creates a new ~module.ttl~ file. After that, the changes to the ~module.ttl~ file should be commited to the main branch of the project.
+
 ** Developer information
-- ~example~ :: A main application script, possibly unaware of ENEXA.
 - ~module~ :: A main module script to translate the input and output parameters between ENEXA and the application.
 - ~Dockerfile~ :: A Dockerfile for the Docker image of this module.
+- ~module.ttl.template~ :: A template that is used to generate the ~module.ttl~ file
+- ~module.ttl~ :: An automatically generated file describing this ENEXA module. Manual changes will be overwritten by the Makefile.
