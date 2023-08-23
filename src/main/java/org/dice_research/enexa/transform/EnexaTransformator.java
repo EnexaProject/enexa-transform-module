@@ -79,12 +79,11 @@ public class EnexaTransformator {
         if (!sharedDir.endsWith(File.separator)) {
             sharedDir += File.separator;
         }
-        File localOutputDir = new File(EnexaPathUtils.translateEnexa2LocalPath(outputDir, sharedDir));
         File outputFile = null;
         try (StreamingTransformator transformator = StreamingTransformator.builder().setOutputFormat(outputLang)
                 // .setCompression(compression)
                 // .setOutputFileName(outputFile.getName())
-                .setOutputDirectory(localOutputDir).build();) {
+                .setOutputDirectory(new File(outputDir)).build();) {
             for (Resource sourceFile : sourceFiles) {
                 addFile(sourceFile, parameterModel, sharedDir, transformator);
             }
