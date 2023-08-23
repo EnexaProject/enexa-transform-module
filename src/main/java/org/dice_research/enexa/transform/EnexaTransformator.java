@@ -110,7 +110,8 @@ public class EnexaTransformator {
         } catch (SecurityException e) {
             LOGGER.warn("Couldn't determine the size of " + outputFile.toString(), e);
         }
-        // Add the direct connection that the generated file is the output of this module instance
+        // Add the direct connection that the generated file is the output of this
+        // module instance
         metadata.add(moduleInsResource, TransformVocab.output, fileResource);
 
         if (sendRequest(enexaServiceUrl, metadata) != null) {
@@ -241,7 +242,7 @@ public class EnexaTransformator {
                         }
                     }
                 } else {
-                    LOGGER.error("Wrong response status: " + new StatusLine(response));
+                    LOGGER.error("Wrong response status while sending \"{}\": {} ", url, new StatusLine(response));
                 }
                 return new Result(response.getCode(), model);
             });
