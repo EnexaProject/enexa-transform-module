@@ -32,6 +32,7 @@ import org.dice_research.enexa.vocab.ENEXA;
 import org.dice_research.enexa.vocab.IANAMediaType;
 import org.dice_research.rdf.RdfHelper;
 import org.dice_research.sparql.SparqlQueryUtils;
+import org.semanticweb.owlapi.formats.OWLXMLDocumentFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,9 @@ public class EnexaTransformator {
         String sharedDir = getEnvVariable("ENEXA_SHARED_DIRECTORY");
         String outputDir = getEnvVariable("ENEXA_MODULE_INSTANCE_DIRECTORY");
         String enexaServiceUrl = getEnvVariable("ENEXA_SERVICE_URL");
+        if (!enexaServiceUrl.endsWith("/")) {
+            enexaServiceUrl += "/";
+        }
 
         Resource moduleInsResource = ResourceFactory.createResource(moduleInstance);
         Resource experimentResource = ResourceFactory.createResource(experimentIri);
@@ -70,17 +74,20 @@ public class EnexaTransformator {
         }
         Resource targetMediaResource = RdfHelper.getObjectResource(parameterModel, moduleInsResource,
                 TransformVocab.outputMediaType);
-        if (sourceFiles.size() == 0) {
+        if (targetMediaResource == null) {
             LOGGER.error("The output media type has not been defined. Aborting.");
             return;
         }
-        Lang outputLang = getOutputLang(targetMediaResource);
-        // 2. create transformer
+        if (!targetMediaResource.isURIResource()) {
+            LOGGER.error("The output media type is not an IRI. Aborting.");
+            return;
+        }
+        // 3. create transformer
         if (!sharedDir.endsWith(File.separator)) {
             sharedDir += File.separator;
         }
         File outputFile = null;
-        try (StreamingTransformator transformator = StreamingTransformator.builder().setOutputFormat(outputLang)
+        try (Transformator transformator = new TransformatorBuilder().setOutputFormat(targetMediaResource.getURI())
                 // .setCompression(compression)
                 // .setOutputFileName(outputFile.getName())
                 .setOutputDirectory(new File(outputDir)).build();) {
@@ -114,7 +121,7 @@ public class EnexaTransformator {
         // module instance
         metadata.add(moduleInsResource, TransformVocab.output, fileResource);
 
-        if (sendRequest(enexaServiceUrl, metadata) != null) {
+        if (sendRequest(enexaServiceUrl + "add-resource", metadata) != null) {
             LOGGER.info("This module seems to have been successful.");
         }
     }
@@ -171,7 +178,7 @@ public class EnexaTransformator {
      * @throws IOException in case of an IO error while reading the file
      */
     protected static void addFile(Resource sourceFile, Model parameterModel, String sharedDir,
-            StreamingTransformator transformator) throws IOException {
+            Transformator transformator) throws IOException {
         String enexaPath = RdfHelper.getStringValue(parameterModel, sourceFile, ENEXA.location);
         Resource mediaTypeResource = RdfHelper.getObjectResource(parameterModel, sourceFile, DCAT.mediaType);
         transformator.addFile2Stream(new File(EnexaPathUtils.translateEnexa2LocalPath(enexaPath, sharedDir)),

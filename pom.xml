@@ -32,6 +32,12 @@
 
     <!-- DEPENDENCIES -->
     <dependencies>
+        <!-- This is the version that is used by Protege -->
+        <dependency>
+            <groupId>net.sourceforge.owlapi</groupId>
+            <artifactId>owlapi-osgidistribution</artifactId>
+            <version>4.5.25</version>
+        </dependency>
         <!-- ENEXA Java utils -->
         <dependency>
             <groupId>org.dice-research</groupId>
