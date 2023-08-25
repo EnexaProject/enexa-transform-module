@@ -47,7 +47,7 @@ public abstract class AbstractTransformatorTest {
         this.inputFormatIris = inputFormatIris;
         this.inputLangs = new Lang[inputFormatIris.length];
         // Print information about this test
-        System.out.println("Test output format: " + IANAMediaType.iri2ContentType(outputFormatIri.toString()));
+        System.out.println("Test output format: " + IANAMediaType.iri2ContentType(outputFormatIri));
         System.out.print("     input formats: ");
         for (int i = 0; i < inputFormatIris.length; ++i) {
             inputLangs[i] = IANAMediaType.iri2Lang(inputFormatIris[i]);
@@ -59,35 +59,35 @@ public abstract class AbstractTransformatorTest {
         }
     }
 
-//    @Test
-//    public void testCompInFileExt() {
-//        try {
-//            createFilesAndTest(true, true);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            Assert.fail();
-//        }
-//    }
-//
-//    @Test
-//    public void testFileExt() {
-//        try {
-//            createFilesAndTest(true, false);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            Assert.fail();
-//        }
-//    }
-//
-//    @Test
-//    public void testCompIn() {
-//        try {
-//            createFilesAndTest(false, true);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            Assert.fail();
-//        }
-//    }
+    @Test
+    public void testCompInFileExt() {
+        try {
+            createFilesAndTest(true, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testFileExt() {
+        try {
+            createFilesAndTest(true, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+    }
+
+    @Test
+    public void testCompIn() {
+        try {
+            createFilesAndTest(false, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
+    }
 
     @Test
     public void test() {

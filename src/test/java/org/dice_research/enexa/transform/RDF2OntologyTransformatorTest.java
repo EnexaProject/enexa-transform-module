@@ -25,7 +25,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -51,7 +50,6 @@ public class RDF2OntologyTransformatorTest extends AbstractTransformatorTest {
 
     @Override
     protected void compareModels(InputStream is, String outputFormatIri, Model expectedModel) {
-//        String contentType = IANAMediaType.iri2ContentType(outputFormatIri);
         try {
             File expectedFile = File.createTempFile("test-expected-result-", ".nt");
             try (Writer writer = new FileWriter(expectedFile, StandardCharsets.UTF_8)) {
@@ -71,12 +69,10 @@ public class RDF2OntologyTransformatorTest extends AbstractTransformatorTest {
             OWLOntology readOnt = manager.loadOntologyFromOntologyDocument(is);
 
             for (OWLAxiom a : expectedOntology.getAxioms()) {
-                System.out.println(a);
                 Assert.assertTrue("Read ontology does not contain the expected axiom " + a.toString(),
                         readOnt.containsAxiom(a));
             }
             for (OWLAxiom a : readOnt.getAxioms()) {
-                System.out.println(a);
                 Assert.assertTrue("Read ontology contains the additional axiom " + a.toString(),
                         expectedOntology.containsAxiom(a));
             }

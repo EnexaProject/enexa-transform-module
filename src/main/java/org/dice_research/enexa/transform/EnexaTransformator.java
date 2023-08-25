@@ -32,7 +32,6 @@ import org.dice_research.enexa.vocab.ENEXA;
 import org.dice_research.enexa.vocab.IANAMediaType;
 import org.dice_research.rdf.RdfHelper;
 import org.dice_research.sparql.SparqlQueryUtils;
-import org.semanticweb.owlapi.formats.OWLXMLDocumentFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,6 +133,8 @@ public class EnexaTransformator {
      * @param targetMediaResource
      * @return
      */
+    @SuppressWarnings("unused")
+    @Deprecated
     private static Lang getOutputLang(Resource targetMediaResource) {
         Lang outputLang = IANAMediaType.resource2Lang(targetMediaResource);
         // If this is one of the languages we can handle...
