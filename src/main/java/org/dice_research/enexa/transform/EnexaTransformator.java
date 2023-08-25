@@ -46,46 +46,56 @@ public class EnexaTransformator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnexaTransformator.class);
 
-    public static void main(String[] args) {
-        // 0. init
-        String experimentIri = getEnvVariable("ENEXA_EXPERIMENT_IRI");
-        String endpoint = getEnvVariable("ENEXA_META_DATA_ENDPOINT");
-        String metaGraph = getEnvVariable("ENEXA_META_DATA_GRAPH");
-        String moduleInstance = getEnvVariable("ENEXA_MODULE_INSTANCE_IRI");
-        String sharedDir = getEnvVariable("ENEXA_SHARED_DIRECTORY");
-        String outputDir = getEnvVariable("ENEXA_MODULE_INSTANCE_DIRECTORY");
-        String enexaServiceUrl = getEnvVariable("ENEXA_SERVICE_URL");
-        if (!enexaServiceUrl.endsWith("/")) {
-            enexaServiceUrl += "/";
-        }
+    protected Resource experiment;
+    protected String endpoint;
+    protected String metaGraph;
+    protected Resource moduleInstance;
+    protected String sharedDir;
+    protected String outputDir;
+    protected String enexaServiceUrl;
+    protected Model parameterModel;
+    protected List<Resource> sourceFiles;
+    protected Resource targetMediaResource;
+    protected File outputFile;
+    protected String enexaFileLocation;
 
-        Resource moduleInsResource = ResourceFactory.createResource(moduleInstance);
-        Resource experimentResource = ResourceFactory.createResource(experimentIri);
-
-        // 1. get parameters from SPARQL endpoint
-        Model parameterModel = queryParameterModel(endpoint, metaGraph, moduleInstance);
-        LOGGER.debug("Parameter Model: {}", parameterModel);
-        List<Resource> sourceFiles = RdfHelper.getObjectResources(parameterModel, moduleInsResource,
-                TransformVocab.input);
-        if (sourceFiles.size() == 0) {
-            LOGGER.error("No input files defined. Aborting.");
-            return;
-        }
-        Resource targetMediaResource = RdfHelper.getObjectResource(parameterModel, moduleInsResource,
-                TransformVocab.outputMediaType);
-        if (targetMediaResource == null) {
-            LOGGER.error("The output media type has not been defined. Aborting.");
-            return;
-        }
-        if (!targetMediaResource.isURIResource()) {
-            LOGGER.error("The output media type is not an IRI. Aborting.");
-            return;
-        }
-        // 3. create transformer
+    public EnexaTransformator() throws IllegalStateException {
+        experiment = ResourceFactory.createResource(getEnvVariable("ENEXA_EXPERIMENT_IRI"));
+        endpoint = getEnvVariable("ENEXA_META_DATA_ENDPOINT");
+        metaGraph = getEnvVariable("ENEXA_META_DATA_GRAPH");
+        moduleInstance = ResourceFactory.createResource(getEnvVariable("ENEXA_MODULE_INSTANCE_IRI"));
+        sharedDir = getEnvVariable("ENEXA_SHARED_DIRECTORY");
         if (!sharedDir.endsWith(File.separator)) {
             sharedDir += File.separator;
         }
-        File outputFile = null;
+        outputDir = getEnvVariable("ENEXA_MODULE_INSTANCE_DIRECTORY");
+        enexaServiceUrl = getEnvVariable("ENEXA_SERVICE_URL");
+        if (!enexaServiceUrl.endsWith("/")) {
+            enexaServiceUrl += "/";
+        }
+    }
+
+    protected void requestParameters() throws IllegalArgumentException {
+        parameterModel = queryParameterModel(endpoint, metaGraph, moduleInstance.getURI());
+        LOGGER.debug("Parameter Model: {}", parameterModel);
+        sourceFiles = RdfHelper.getObjectResources(parameterModel, moduleInstance, TransformVocab.input);
+        if (sourceFiles.size() == 0) {
+            throw new IllegalArgumentException(
+                    "No input files defined (parameter IRI:" + TransformVocab.input.getURI() + ").");
+        }
+        targetMediaResource = RdfHelper.getObjectResource(parameterModel, moduleInstance,
+                TransformVocab.outputMediaType);
+        if (targetMediaResource == null) {
+            throw new IllegalArgumentException("The output media type has not been defined (parameter IRI:"
+                    + TransformVocab.outputMediaType.getURI() + ").");
+        }
+        if (!targetMediaResource.isURIResource()) {
+            throw new IllegalArgumentException(
+                    "The output media type is not an IRI (" + targetMediaResource.toString() + ").");
+        }
+    }
+
+    protected void executeTransformation() throws Exception {
         try (Transformator transformator = new TransformatorBuilder().setOutputFormat(targetMediaResource.getURI())
                 // .setCompression(compression)
                 // .setOutputFileName(outputFile.getName())
@@ -95,21 +105,17 @@ public class EnexaTransformator {
             }
             // update output file after writing
             outputFile = transformator.getOutputFile();
-        } catch (Exception e) {
-            LOGGER.error("Got an exception while transforming files. Aborting.", e);
-            return;
         }
+        enexaFileLocation = EnexaPathUtils.translateLocal2EnexaPath(outputFile, sharedDir);
+    }
 
-        String enexaFileLocation = EnexaPathUtils.translateLocal2EnexaPath(outputFile, sharedDir);
-
-        // 3. write file metadata
+    protected void sendFileMetadata() throws IOException {
         Model metadata = ModelFactory.createDefaultModel();
         Resource fileResource = metadata.createResource();
         metadata.add(fileResource, RDF.type, metadata.createResource("http://www.w3.org/ns/prov#Entity"));
-        metadata.add(fileResource, ENEXA.experiment, experimentResource);
+        metadata.add(fileResource, ENEXA.experiment, experiment);
         metadata.add(fileResource, ENEXA.location, enexaFileLocation);
-        metadata.add(fileResource, metadata.createProperty("http://www.w3.org/ns/prov#wasGeneratedBy"),
-                moduleInsResource);
+        metadata.add(fileResource, metadata.createProperty("http://www.w3.org/ns/prov#wasGeneratedBy"), moduleInstance);
         metadata.add(fileResource, DCAT.mediaType, targetMediaResource);
         try {
             metadata.addLiteral(fileResource, DCAT.byteSize, outputFile.length());
@@ -118,10 +124,42 @@ public class EnexaTransformator {
         }
         // Add the direct connection that the generated file is the output of this
         // module instance
-        metadata.add(moduleInsResource, TransformVocab.output, fileResource);
+        metadata.add(moduleInstance, TransformVocab.output, fileResource);
 
         if (sendRequest(enexaServiceUrl + "add-resource", metadata) != null) {
             LOGGER.info("This module seems to have been successful.");
+        }
+    }
+
+    public static void main(String[] args) {
+        // 1. init
+        EnexaTransformator module = null;
+        try {
+            module = new EnexaTransformator();
+        } catch (Exception e) {
+            LOGGER.error("Error during initialization. Aborting.", e);
+            System.exit(-1);
+        }
+        // 2. get parameters from SPARQL endpoint
+        try {
+            module.requestParameters();
+        } catch (Exception e) {
+            LOGGER.error("Received invalid parameters. Aborting.", e);
+            System.exit(-1);
+        }
+        // 3. create transformer
+        try {
+            module.executeTransformation();
+        } catch (Exception e) {
+            LOGGER.error("Got an exception while transforming files. Aborting.", e);
+            System.exit(-1);
+        }
+        // 4. write file metadata
+        try {
+            module.sendFileMetadata();
+        } catch (Exception e) {
+            LOGGER.error("Exception while sending meta data of generated file. Aborting.", e);
+            System.exit(-1);
         }
     }
 
@@ -153,7 +191,7 @@ public class EnexaTransformator {
      * @return the value of the given variable
      * @throws IllegalStateException if the key is not known
      */
-    private static String getEnvVariable(String key) {
+    private static String getEnvVariable(String key) throws IllegalStateException {
         String value = System.getenv(key);
         if (value == null) {
             String msg = "Couldn't get value of variable " + key + ". The environment is not correctly set up.";
@@ -223,8 +261,9 @@ public class EnexaTransformator {
      * @param url  the URL to which the data should be sent
      * @param data the RDF data that should be sent within the request body
      * @return the RDF model that has been received as response
+     * @throws IOException
      */
-    protected static Model sendRequest(String url, Model data) {
+    protected static Model sendRequest(String url, Model data) throws IOException {
         HttpPost request = new HttpPost(url);
         request.addHeader(HttpHeaders.ACCEPT, WebContent.contentTypeJSONLD);
         if (data != null) {
@@ -232,9 +271,6 @@ public class EnexaTransformator {
                 request.addHeader(HttpHeaders.CONTENT_TYPE, WebContent.contentTypeJSONLD);
                 RDFDataMgr.write(writer, data, Lang.JSONLD);
                 request.setEntity(new StringEntity(writer.toString()));
-            } catch (IOException e) {
-                LOGGER.error("Catched unexpected exception while adding data to the request. Returning null.", e);
-                return null;
             }
         }
         try (CloseableHttpClient client = HttpClients.createDefault();) {
@@ -255,10 +291,7 @@ public class EnexaTransformator {
                 return new Result(response.getCode(), model);
             });
             return result.getContent();
-        } catch (Exception e) {
-            LOGGER.error("Caught an exception while running request. Returning null.", e);
         }
-        return null;
     }
 
     /**

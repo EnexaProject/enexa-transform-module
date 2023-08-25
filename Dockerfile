@@ -1,9 +1,10 @@
+FROM hub.cs.upb.de/enexa/images/enexa-utils:1 as enexa-utils
 FROM maven:3.9-eclipse-temurin-17-alpine
 
 WORKDIR /app
 
 # Add enexa-utils
-COPY --from=hub.cs.upb.de/enexa/images/enexa-utils:1 / /.
+COPY --from=enexa-utils / /.
 
 # Add Maven dependencies (not shaded into the artifact; Docker-cached)
 COPY target/lib           /app/lib
