@@ -61,7 +61,7 @@ iana-t:turtle a <KGSerialization>, <StreamableRDFSerialization> ;
 	rdfs:comment "The terse RDF Triple Language (Turtle) is a concrete syntax for RDF as defined in the RDF Concepts and Abstract Syntax W3C Recommendation." ;
 	rdfs:isDefinedBy <https://www.w3.org/TeamSubmission/turtle/> .
 
-iana-a:owl+xml a <KGSerialization>, <StreamableRDFSerialization> ;
+<https://www.iana.org/assignments/media-types/application/owl+xml> a <KGSerialization>, <StreamableRDFSerialization> ;
 	rdfs:label "OWL/XML" ;
 	rdfs:comment "The XML serialization for OWL 2 Web Ontology Language that mirrors its structural specification." ;
 	rdfs:isDefinedBy <http://www.w3.org/TR/owl2-xml-serialization/> .
