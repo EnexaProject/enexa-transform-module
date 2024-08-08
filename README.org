@@ -38,3 +38,5 @@ This will build the Docker image with the new version tag and the ~latest~ tag. 
 - ~Dockerfile~ :: A Dockerfile for the Docker image of this module.
 - ~module.ttl.template~ :: A template that is used to generate the ~module.ttl~ file
 - ~module.ttl~ :: An automatically generated file describing this ENEXA module. Manual changes will be overwritten by the Makefile.
+
+The documentation is available [here](https://enexa.eu/documentation). You can find the module documentation [here](https://enexa.eu/documentation/modules_overview.html#transform-module).
